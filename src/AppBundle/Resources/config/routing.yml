@@ -1,0 +1,49 @@
+artista_get:
+    path: /artist/get/{id}/
+    defaults: { _controller: AppBundle:Artistas:getArtista }
+    methods:  [GET]
+    
+artista_create:
+    path: /artist/add/
+    defaults: { _controller: AppBundle:Artistas:addArtista }
+    methods:  [POST]
+    
+artista_update:
+    path: /artist/update/{id}/
+    defaults: { _controller: AppBundle:Artistas:updateArtista }
+    methods:  [PUT]
+    
+artista_delete:
+    path: /artist/delete/{id}/
+    defaults: { _controller: AppBundle:Artistas:deleteArtista }
+    methods:  [DELETE]
+    
+artista_album:
+    path: /artist/setalbum/{idArtista}/
+    defaults: { _controller: AppBundle:Artistas:setAlbumArtista }
+    methods:  [PUT]
+
+album_get:
+    path: /album/get/{id}/
+    defaults: { _controller: AppBundle:Albumes:getAlbum }
+    methods:  [GET]
+    
+album_create:
+    path: /album/add/
+    defaults: { _controller: AppBundle:Albumes:addAlbum }
+    methods:  [POST]
+    
+album_update:
+    path: /album/update/{id}/
+    defaults: { _controller: AppBundle:Albumes:updateAlbum }
+    methods:  [PUT]
+    
+album_delete:
+    path: /album/delete/{id}/
+    defaults: { _controller: AppBundle:Albumes:deleteAlbum}
+    methods:  [DELETE]
+    
+album_artista:
+    path: /album/setartista/{idAlbum}/
+    defaults: { _controller: AppBundle:Albumes:setArtistaAlbum }
+    methods:  [PUT]

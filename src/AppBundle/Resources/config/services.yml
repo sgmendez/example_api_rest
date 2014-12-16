@@ -1,0 +1,15 @@
+services:
+    exception.listener:
+        class: AppBundle\Listeners\ExceptionListener
+        tags:
+            -   { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+            
+    memcached:
+        class: AppBundle\Services\MemcachedService
+        arguments: [%memcached%, "@logger", %kernel.debug%]
+        
+    postpersit.listener:
+        class: AppBundle\Listeners\MemcachedListener
+        arguments: ["@memcached"]
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
