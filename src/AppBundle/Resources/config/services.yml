@@ -8,6 +8,9 @@ services:
         class: AppBundle\Services\MemcachedService
         arguments: [%memcached%, "@logger", %kernel.debug%]
         
+    validate:
+        class: AppBundle\Services\ValidateService
+        
     postpersit.listener:
         class: AppBundle\Listeners\MemcachedListener
         arguments: ["@memcached"]

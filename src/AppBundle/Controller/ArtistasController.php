@@ -18,12 +18,7 @@ class ArtistasController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         
-        $artistas = $em->getRepository('AppBundle:Artistas')->findAll();
-        
-        if(!$artistas)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'No hay ningun artista registrado'), 404);
-        }
+        $artistas = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findAll());
         
         $infoArtista = array('count' => count($artistas));
         foreach($artistas as $artista)
@@ -48,12 +43,7 @@ class ArtistasController extends Controller
         if(!$infoArtista)
         {
             $em = $this->getDoctrine()->getManager();
-            $artista = $em->getRepository('AppBundle:Artistas')->findOneById($id);
-
-            if(!$artista)
-            {
-                return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
-            }
+            $artista = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findOneById($id));
 
             $infoArtista = $this->getInfoArtista($artista);
             
@@ -71,13 +61,11 @@ class ArtistasController extends Controller
      */
     public function addArtistaAction(Request $request)
     {
-        $nombre = $request->request->get('nombre', null);
-        $rol = $request->request->get('rol', null);
+        $keyNombre = 'nombre';
+        $nombre = $this->checkParameter($request->request->get($keyNombre, null), $keyNombre);
         
-        if(is_null($nombre) || is_null($rol))
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El nombre y el rol son obligatorios'), 404);
-        }
+        $keyRol = 'rol';
+        $rol = $this->checkParameter($request->request->get($keyRol, null), $keyRol);
         
         $artista = new Artistas();
         
@@ -88,7 +76,7 @@ class ArtistasController extends Controller
         $em->persist($artista);
         $em->flush();
         
-        return new JsonResponse(array('success' => true, 'message' => 'Artista creado correctamente', 'id' => $artista->getId()), 201);
+        return new JsonResponse(array('message' => 'Artista creado correctamente', 'id' => $artista->getId()), 201);
     }
 
     /**
@@ -100,17 +88,11 @@ class ArtistasController extends Controller
      */
     public function updateArtistaAction(Request $request, $id)
     {
+        $em = $this->getDoctrine()->getManager();
+        $artista = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findOneById($id));
+        
         $nombre = $request->request->get('nombre', null);
         $rol = $request->request->get('rol', null);
-        
-        $em = $this->getDoctrine()->getManager();
-        
-        $artista = $em->getRepository('AppBundle:Artistas')->findOneById($id);
-        
-        if(!$artista)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
-        }
         
         if(!is_null($nombre)) $artista->setNombre($nombre);
         if(!is_null($rol)) $artista->setRol($rol);
@@ -118,7 +100,7 @@ class ArtistasController extends Controller
         $em->persist($artista);
         $em->flush();
         
-        return new JsonResponse(array('success' => true, 'message' => 'Artista actualizado'), 200);
+        return new JsonResponse(array('message' => 'Artista actualizado'), 200);
     }
     
     /**
@@ -131,17 +113,12 @@ class ArtistasController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         
-        $artista = $em->getRepository('AppBundle:Artistas')->findOneById($id);
-        
-        if(!$artista)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
-        }
+        $artista = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findOneById($id));
         
         $em->remove($artista);
         $em->flush();
         
-        return new JsonResponse(array('success' => true, 'message' => 'Artista borrado'), 200);
+        return new JsonResponse(array('message' => 'Artista borrado'), 200);
     }
     
     /**
@@ -153,35 +130,20 @@ class ArtistasController extends Controller
      */
     public function setAlbumArtistaAction(Request $request, $idArtista)
     {
-        $albumId = $request->request->get('albumId', null);
-        
-        if(is_null($albumId))
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El id del album es obligatorio'), 404);
-        }
+        $keyRequest = 'albumId';
+        $albumId = $this->checkParameter($request->request->get($keyRequest, null), $keyRequest);
         
         $em = $this->getDoctrine()->getManager();
         
-        $album = $em->getRepository('AppBundle:Albumes')->findOneById($albumId);
-        
-        if(!$album)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
-        }
-        
-        $artista = $em->getRepository('AppBundle:Artistas')->findOneById($idArtista);
-        
-        if(!$artista)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
-        }
+        $album = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findOneById($albumId));
+        $artista = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findOneById($idArtista));
         
         $artista->addAlbume($album);
         
         $em->persist($artista);
         $em->flush();
         
-        return new JsonResponse(array('success' => true, 'message' => 'Artista actualizado'), 200);
+        return new JsonResponse(array('message' => 'Artista actualizado'), 200);
     }
 
     /**
@@ -217,5 +179,32 @@ class ArtistasController extends Controller
         );
         
         return $infoArtista;
+    }
+    
+    /**
+     * Comprobar que existe el parametro
+     * 
+     * @param type $results
+     * @return type
+     * @throws NoResultException
+     */
+    private function checkNoResults($results)
+    {
+        $validate = $this->get('validate');
+        return $validate->checkNoResults($results);
+    }
+    
+    /**
+     * Comprobar que el parametro no es nulo
+     * 
+     * @param type $param
+     * @param type $key
+     * @return type
+     * @throws InvalidParameterException
+     */
+    private function checkParameter($param, $key)
+    {
+        $validate = $this->get('validate');
+        return $validate->checkParameterNotNull($param, $key);
     }
 }

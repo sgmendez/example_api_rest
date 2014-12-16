@@ -18,12 +18,7 @@ class AlbumesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         
-        $albumes = $em->getRepository('AppBundle:Albumes')->findAll();
-        
-        if(!$albumes)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'No hay albumes en registrados'), 404);
-        }
+        $albumes = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findAll());
         
         $infoAlbum = array('count' => count($albumes));
         foreach($albumes as $album)
@@ -48,12 +43,7 @@ class AlbumesController extends Controller
         if(!$infoAlbum)
         {
             $em = $this->getDoctrine()->getManager();
-            $album = $em->getRepository('AppBundle:Albumes')->findOneById($id);
-        
-            if(!$album)
-            {
-                return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
-            }
+            $album = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findOneById($id));
 
             $infoAlbum = $this->getInfoAlbum($album);
             
@@ -73,13 +63,11 @@ class AlbumesController extends Controller
      */
     public function addAlbumAction(Request $request)
     {
-        $titulo = $request->request->get('titulo', null);
-        $fechaPublicacion = $request->request->get('fechaPublicacion', null);
+        $keyTitulo = 'titulo';
+        $titulo = $this->checkParameter($request->request->get($keyTitulo, null), $keyTitulo);
         
-        if(is_null($titulo) || is_null($fechaPublicacion))
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El titulo y la fecha de publicacion son obligatorios'), 404);
-        }
+        $keyFechaPublicacion = 'fechaPublicacion';
+        $fechaPublicacion = $this->checkParameter($request->request->get($keyFechaPublicacion, null), $keyFechaPublicacion);
         
         $album = new Albumes();
         
@@ -101,18 +89,12 @@ class AlbumesController extends Controller
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function updateAlbumAction(Request $request, $id)
-    {        
+    {
+        $em = $this->getDoctrine()->getManager();
+        $album = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findOneById($id));
+        
         $titulo = $request->request->get('titulo', null);
         $fechaPublicacion = $request->request->get('fechaPublicacion', null);
-        
-        $em = $this->getDoctrine()->getManager();
-        
-        $album = $em->getRepository('AppBundle:Albumes')->findOneById($id);
-        
-        if(!$album)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
-        }
         
         if(!is_null($titulo)) $album->setTitulo($titulo);
         if(!is_null($fechaPublicacion)) $album->setFechaPublicacion($fechaPublicacion);
@@ -133,12 +115,7 @@ class AlbumesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         
-        $album = $em->getRepository('AppBundle:Albumes')->findOneById($id);
-        
-        if(!$album)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
-        }
+        $album = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findOneById($id));
         
         $em->remove($album);
         $em->flush();
@@ -155,28 +132,14 @@ class AlbumesController extends Controller
      */
     public function setArtistaAlbumAction(Request $request, $idAlbum)
     {
-        $artistaId = $request->request->get('artistaId', null);
-        
-        if(is_null($artistaId))
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El id del artista es obligatorio'), 404);
-        }
+        $keyArtistaId = 'artistaId';
+        $artistaId = $this->checkParameter($request->request->get($keyArtistaId, null), $keyArtistaId);
         
         $em = $this->getDoctrine()->getManager();
         
-        $album = $em->getRepository('AppBundle:Albumes')->findOneById($idAlbum);
+        $album = $this->checkNoResults($em->getRepository('AppBundle:Albumes')->findOneById($idAlbum));
         
-        if(!$album)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
-        }
-        
-        $artista = $em->getRepository('AppBundle:Artistas')->findOneById($artistaId);
-        
-        if(!$artista)
-        {
-            return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
-        }
+        $artista = $this->checkNoResults($em->getRepository('AppBundle:Artistas')->findOneById($artistaId));
         
         $album->addArtista($artista);
         
@@ -219,5 +182,32 @@ class AlbumesController extends Controller
         );
         
         return $infoAlbum;
+    }
+    
+    /**
+     * Comprobar que existe el parametro
+     * 
+     * @param type $results
+     * @return type
+     * @throws NoResultException
+     */
+    private function checkNoResults($results)
+    {
+        $validate = $this->get('validate');
+        return $validate->checkNoResults($results);
+    }
+    
+    /**
+     * Comprobar que el parametro no es nulo
+     * 
+     * @param type $param
+     * @param type $key
+     * @return type
+     * @throws InvalidParameterException
+     */
+    private function checkParameter($param, $key)
+    {
+        $validate = $this->get('validate');
+        return $validate->checkParameterNotNull($param, $key);
     }
 }
