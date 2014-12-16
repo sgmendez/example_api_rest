@@ -48,7 +48,7 @@ class MemcachedListener
             $albumesArtista = array();
             foreach ($entity->getAlbumes() as $album)
             {
-                $albumesArtista[] = array('titulo' => $album->getTitulo(), 'fecha_publicacion' => $album->getFechaPublicacion());
+                $albumesArtista[] = array('titulo' => $album->getTitulo(), 'fecha_publicacion' => $album->getFechaPublicacion()->format('Y-m-d'));
             }
             
             $infoArtista = array(
