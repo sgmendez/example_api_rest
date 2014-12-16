@@ -63,6 +63,20 @@ class AlbumesControllerTest extends WebTestCase
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
+    public function testGetAllAlbums()
+    {
+        $client = static::createClient();
+        
+        $client->request('GET', '/album/all/');
+        $response = $client->getResponse();
+        
+        $res = json_decode($client->getResponse()->getContent(), true);
+        
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+        $this->assertTrue(key_exists('count', $res), 'No aparece un contador en el listado de albumes');
+    }
+    
     public function testDeleteAlbum()
     {
         global $idAlbumTest;
