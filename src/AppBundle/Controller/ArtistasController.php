@@ -10,6 +10,35 @@ use \Symfony\Component\HttpFoundation\JsonResponse;
 class ArtistasController extends Controller
 {
     /**
+     * Obtener un listado de artistas registrados
+     * 
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function getAllArtistasAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+        
+        $artistas = $em->getRepository('AppBundle:Artistas')->findAll();
+        
+        if(!$artistas)
+        {
+            return new JsonResponse(array('success' => false, 'message' => 'No hay ningun artista registrado'), 404);
+        }
+        
+        $infoArtista = array('count' => count($artistas));
+        foreach($artistas as $artista)
+        {
+            $infoArtista[] = array(
+                'nombre' => $artista->getNombre(),
+                'rol' => $artista->getRol(),
+                'albumes' => $this->getAlbumesArtista($artista->getAlbumes())
+            );
+        }
+        
+        return new JsonResponse($infoArtista, 200);
+    }
+    
+    /**
      * Obtener un artista por id
      * 
      * @param type $id
@@ -174,7 +203,7 @@ class ArtistasController extends Controller
         $albumesArtista = array();
         foreach ($albumes as $album)
         {
-            $albumesArtista[] = $album->getTitulo();
+            $albumesArtista[] = array('titulo' => $album->getTitulo(), 'fecha_publicacion' => $album->getFechaPublicacion()->format('Y-m-d'));
         }
         
         return $albumesArtista;
