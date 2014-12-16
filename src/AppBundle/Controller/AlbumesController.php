@@ -28,11 +28,7 @@ class AlbumesController extends Controller
         $infoAlbum = array('count' => count($albumes));
         foreach($albumes as $album)
         {
-            $infoAlbum[] = array(
-                'titulo' => $album->getTitulo(),
-                'fechaPublicacion' => $album->getFechaPublicacion()->format('Y-m-d'),
-                'artistas' => $this->getArtistasAlbum($album->getArtistas())
-            );
+            $infoAlbum[] = $this->getInfoAlbum($album);
         }
         
         return new JsonResponse($infoAlbum, 200);
@@ -59,11 +55,7 @@ class AlbumesController extends Controller
                 return new JsonResponse(array('success' => false, 'message' => 'El album solicitado no existe'), 404);
             }
 
-            $infoAlbum = array(
-                'titulo' => $album->getTitulo(),
-                'fechaPublicacion' => $album->getFechaPublicacion()->format('Y-m-d'),
-                'artistas' => $this->getArtistasAlbum($album->getArtistas())
-            );
+            $infoAlbum = $this->getInfoAlbum($album);
             
             $memcached->set('album_'.$id, $infoAlbum);
         }
@@ -209,5 +201,23 @@ class AlbumesController extends Controller
         }
         
         return $artistasAlbum;
+    }
+    
+    /**
+     * Formatear la información de salida del album
+     * 
+     * @param \AppBundle\Entity\Albumes $album
+     * @return array
+     */
+    private function getInfoAlbum($album)
+    {        
+        $infoAlbum = array(
+            'titulo' => $album->getTitulo(),
+            'fechaPublicacion' => $album->getFechaPublicacion()->format('Y-m-d'),
+            'fechaCreacion' => $album->getCreateAt()->format('Y-m-d'),
+            'artistas' => $this->getArtistasAlbum($album->getArtistas())
+        );
+        
+        return $infoAlbum;
     }
 }

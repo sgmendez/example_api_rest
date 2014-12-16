@@ -54,6 +54,7 @@ class MemcachedListener
             $infoArtista = array(
                 'nombre' => $entity->getNombre(),
                 'rol' => $entity->getRol(),
+                'fecha_creacion' => $entity->getCreateAt(),
                 'albumes' => $albumesArtista
             );
             
