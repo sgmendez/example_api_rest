@@ -1,3 +1,8 @@
+artista_all:
+    path: /artist/all/
+    defaults: { _controller: AppBundle:Artistas:getAllArtistas }
+    methods:  [GET]
+    
 artista_get:
     path: /artist/get/{id}/
     defaults: { _controller: AppBundle:Artistas:getArtista }
@@ -22,6 +27,11 @@ artista_album:
     path: /artist/setalbum/{idArtista}/
     defaults: { _controller: AppBundle:Artistas:setAlbumArtista }
     methods:  [PUT]
+
+album_all:
+    path: /album/all/
+    defaults: { _controller: AppBundle:Albumes:getAllAlbums }
+    methods:  [GET]
 
 album_get:
     path: /album/get/{id}/

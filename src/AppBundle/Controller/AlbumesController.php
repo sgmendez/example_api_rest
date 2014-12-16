@@ -10,6 +10,35 @@ use \Symfony\Component\HttpFoundation\JsonResponse;
 class AlbumesController extends Controller
 {
     /**
+     * Obtener un listado de todos los albums registrados
+     * 
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function getAllAlbumsAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+        
+        $albumes = $em->getRepository('AppBundle:Albumes')->findAll();
+        
+        if(!$albumes)
+        {
+            return new JsonResponse(array('success' => false, 'message' => 'No hay albumes en registrados'), 404);
+        }
+        
+        $infoAlbum = array('count' => count($albumes));
+        foreach($albumes as $album)
+        {
+            $infoAlbum[] = array(
+                'titulo' => $album->getTitulo(),
+                'fechaPublicacion' => $album->getFechaPublicacion()->format('Y-m-d'),
+                'artistas' => $this->getArtistasAlbum($album->getArtistas())
+            );
+        }
+        
+        return new JsonResponse($infoAlbum, 200);
+    }
+    
+    /**
      * Obtener un album por Id
      * 
      * @param type $id
