@@ -27,12 +27,8 @@ class ArtistasController extends Controller
         
         $infoArtista = array('count' => count($artistas));
         foreach($artistas as $artista)
-        {
-            $infoArtista[] = array(
-                'nombre' => $artista->getNombre(),
-                'rol' => $artista->getRol(),
-                'albumes' => $this->getAlbumesArtista($artista->getAlbumes())
-            );
+        {            
+            $infoArtista[] = $this->getInfoArtista($artista);
         }
         
         return new JsonResponse($infoArtista, 200);
@@ -59,11 +55,7 @@ class ArtistasController extends Controller
                 return new JsonResponse(array('success' => false, 'message' => 'El artista solicitado no existe'), 404);
             }
 
-            $infoArtista = array(
-                'nombre' => $artista->getNombre(),
-                'rol' => $artista->getRol(),
-                'albumes' => $this->getAlbumesArtista($artista->getAlbumes())
-            );
+            $infoArtista = $this->getInfoArtista($artista);
             
             $memcached->set('artista_'.$id, $infoArtista);
         }
@@ -207,5 +199,23 @@ class ArtistasController extends Controller
         }
         
         return $albumesArtista;
+    }
+    
+    /**
+     * Formatear la información de salida del artista
+     * 
+     * @param \AppBundle\Entity\Artistas $artista
+     * @return array
+     */
+    private function getInfoArtista($artista)
+    {
+        $infoArtista = array(
+            'nombre' => $artista->getNombre(),
+            'rol' => $artista->getRol(),
+            'fecha_creacion' => $artista->getCreateAt()->format('Y-m-d'),
+            'albumes' => $this->getAlbumesArtista($artista->getAlbumes())
+        );
+        
+        return $infoArtista;
     }
 }
