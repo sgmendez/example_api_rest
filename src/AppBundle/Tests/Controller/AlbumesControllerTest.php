@@ -5,12 +5,36 @@ namespace AppBundle\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AlbumesControllerTest extends WebTestCase
-{    
+{
+    const ROUTEALBUM = '/album/';
+
+    public function testAddAlbumErrorTitulo()
+    {
+        $client = static::createClient();
+        
+        $client->request('POST', self::ROUTEALBUM, array('fechaPublicacion' => '2014-10-02'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testAddAlbumErrorFecha()
+    {
+        $client = static::createClient();
+        
+        $client->request('POST', self::ROUTEALBUM, array('titulo' => 'Album de Prueba'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
     public function testAddAlbum()
     {
         $client = static::createClient();
         
-        $client->request('POST', '/album/add/', array('titulo' => 'Album de Prueba', 'fechaPublicacion' => '2014-10-02'));
+        $client->request('POST', self::ROUTEALBUM, array('titulo' => 'Album de Prueba', 'fechaPublicacion' => '2014-10-02'));
         $response = $client->getResponse();
         
         $res = json_decode($client->getResponse()->getContent(), true);
@@ -30,10 +54,21 @@ class AlbumesControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('GET', '/album/get/'.$idAlbumTest.'/');
+        $client->request('GET', self::ROUTEALBUM.$idAlbumTest.'/');
         $response = $client->getResponse();
                 
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testGetAlbumNoExiste()
+    {
+        $client = static::createClient();
+        
+        $client->request('GET', self::ROUTEALBUM.'No_existe_9999999999/');
+        $response = $client->getResponse();
+                
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
@@ -43,7 +78,7 @@ class AlbumesControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('PUT', '/album/update/'.$idAlbumTest.'/', array('titulo' => 'Album Modificado'));        
+        $client->request('PUT', self::ROUTEALBUM.$idAlbumTest.'/', array('titulo' => 'Album Modificado'));        
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -56,7 +91,7 @@ class AlbumesControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('PUT', '/album/setartista/'.$idAlbumTest.'/', array('artistaId' => '3'));
+        $client->request('PUT', self::ROUTEALBUM.'artista/'.$idAlbumTest.'/', array('artistaId' => '3'));
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -67,7 +102,7 @@ class AlbumesControllerTest extends WebTestCase
     {
         $client = static::createClient();
         
-        $client->request('GET', '/album/all/');
+        $client->request('GET', self::ROUTEALBUM);
         $response = $client->getResponse();
         
         $res = json_decode($client->getResponse()->getContent(), true);
@@ -83,7 +118,7 @@ class AlbumesControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('DELETE', '/album/delete/'.$idAlbumTest.'/');
+        $client->request('DELETE', self::ROUTEALBUM.$idAlbumTest.'/');
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());

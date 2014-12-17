@@ -5,12 +5,36 @@ namespace AppBundle\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ArtistasControllerTest extends WebTestCase
-{    
+{
+    const ROUTEARTISTA = '/artist/';
+    
+    public function testAddArtistaErrorNombre()
+    {
+        $client = static::createClient();
+        
+        $client->request('POST', self::ROUTEARTISTA, array('rol' => 'voz'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testAddArtistaErrorRol()
+    {
+        $client = static::createClient();
+        
+        $client->request('POST', self::ROUTEARTISTA, array('nombre' => 'Artista de Prueba'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
     public function testAddArtista()
     {
         $client = static::createClient();
         
-        $client->request('POST', '/artist/add/', array('nombre' => 'Artista de Prueba', 'rol' => 'voz'));
+        $client->request('POST', self::ROUTEARTISTA, array('nombre' => 'Artista de Prueba', 'rol' => 'voz'));
         $response = $client->getResponse();
         
         $res = json_decode($client->getResponse()->getContent(), true);
@@ -30,10 +54,21 @@ class ArtistasControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('GET', '/artist/get/'.$idArtistaTest.'/');
+        $client->request('GET', self::ROUTEARTISTA.$idArtistaTest.'/');
         $response = $client->getResponse();
                 
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testGetAlbumNoExiste()
+    {
+        $client = static::createClient();
+        
+        $client->request('GET', self::ROUTEARTISTA.'No_existe_9999999999/');
+        $response = $client->getResponse();
+                
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
@@ -43,7 +78,7 @@ class ArtistasControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('PUT', '/artist/update/'.$idArtistaTest.'/', array('rol' => 'bajo'));
+        $client->request('PUT', self::ROUTEARTISTA.$idArtistaTest.'/', array('rol' => 'bajo'));
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -56,7 +91,7 @@ class ArtistasControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('PUT', '/artist/setalbum/'.$idArtistaTest.'/', array('albumId' => '1'));
+        $client->request('PUT', self::ROUTEARTISTA.'album/'.$idArtistaTest.'/', array('albumId' => '1'));
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -67,7 +102,7 @@ class ArtistasControllerTest extends WebTestCase
     {
         $client = static::createClient();
         
-        $client->request('GET', '/artist/all/');
+        $client->request('GET', self::ROUTEARTISTA);
         $response = $client->getResponse();
         
         $res = json_decode($client->getResponse()->getContent(), true);
@@ -83,7 +118,7 @@ class ArtistasControllerTest extends WebTestCase
         
         $client = static::createClient();
         
-        $client->request('DELETE', '/artist/delete/'.$idArtistaTest.'/');
+        $client->request('DELETE', self::ROUTEARTISTA.$idArtistaTest.'/');
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
