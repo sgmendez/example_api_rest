@@ -72,7 +72,7 @@ class AlbumesControllerTest extends WebTestCase
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
-    public function testUpdateAlbum()
+    public function testUpdateAlbumTitulo()
     {
         global $idAlbumTest;
         
@@ -82,6 +82,30 @@ class AlbumesControllerTest extends WebTestCase
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testUpdateAlbumFecha()
+    {
+        global $idAlbumTest;
+        
+        $client = static::createClient();
+        
+        $client->request('PUT', self::ROUTEALBUM.$idAlbumTest.'/', array('fechaPublicacion' => '2014-07-01'));        
+        $response = $client->getResponse();
+        
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testUpdateAlbumError()
+    {
+        $client = static::createClient();
+        
+        $client->request('PUT', self::ROUTEALBUM.'No_existe_9999999/', array('fechaPublicacion' => '2014-07-01'));        
+        $response = $client->getResponse();
+        
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
