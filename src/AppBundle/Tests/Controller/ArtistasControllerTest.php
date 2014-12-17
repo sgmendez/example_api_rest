@@ -72,7 +72,7 @@ class ArtistasControllerTest extends WebTestCase
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
-    public function testUpdateArtista()
+    public function testUpdateArtistaRol()
     {
         global $idArtistaTest;
         
@@ -82,6 +82,30 @@ class ArtistasControllerTest extends WebTestCase
         $response = $client->getResponse();
         
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testUpdateArtistaNombre()
+    {
+        global $idArtistaTest;
+        
+        $client = static::createClient();
+        
+        $client->request('PUT', self::ROUTEARTISTA.$idArtistaTest.'/', array('nombre' => 'Artista modificado'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
+    }
+    
+    public function testUpdateArtistaErrorId()
+    {        
+        $client = static::createClient();
+        
+        $client->request('PUT', self::ROUTEARTISTA.'No_existe_999999/', array('nombre' => 'Artista modificado'));
+        $response = $client->getResponse();
+        
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
         $this->assertTrue($response->headers->contains('Content-Type', 'application/json'), 'JSON no valido');
     }
     
