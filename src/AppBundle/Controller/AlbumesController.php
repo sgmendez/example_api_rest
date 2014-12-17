@@ -97,7 +97,7 @@ class AlbumesController extends Controller
         $fechaPublicacion = $request->request->get('fechaPublicacion', null);
         
         if(!is_null($titulo)) $album->setTitulo($titulo);
-        if(!is_null($fechaPublicacion)) $album->setFechaPublicacion($fechaPublicacion);
+        if(!is_null($fechaPublicacion)) $album->setFechaPublicacion(new \DateTime($fechaPublicacion));
         
         $em->persist($album);
         $em->flush();
