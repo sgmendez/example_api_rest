@@ -2,6 +2,12 @@
 
 namespace AppBundle\Services;
 
+use Exception;
+use Memcached;
+use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use InvalidArgumentException;
+
 class MemcachedService
 {
     private $log;
@@ -14,7 +20,7 @@ class MemcachedService
      * @param array $addServers
      * @param object $log
      * @param bool $debug
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct($addServers, $log, $debug) 
     {                
@@ -25,21 +31,21 @@ class MemcachedService
         
         try
         {
-            if(!class_exists('\Memcached'))
+            if(!class_exists('Memcached'))
             {
-                throw new \Exception('No existe la clase: \Memcached');
+                throw new NotFoundHttpException('No existe la clase: Memcached');
             }
             
-            $this->memcached = new \Memcached();
+            $this->memcached = new Memcached();
             
             if(!is_array($addServers) || !is_array(current($addServers)))
             {
-                throw new \Exception('La configuracion de servidores de Memcached no es correcta');
+                throw new InvalidArgumentException('La configuracion de servidores de Memcached no es correcta');
             }
             
             $this->memcached->addServers($addServers);
         }
-        catch (\Exception $e) 
+        catch (Exception $e) 
         {            
             $this->catchException($e);
         }
@@ -62,12 +68,12 @@ class MemcachedService
         {
             if(!method_exists($this->memcached, $name))
             {
-                throw new \Exception('No existe el metodo: ' . $name);
+                throw new NotFoundHttpException('No existe el metodo: ' . $name);
             }
             
             $resultado = call_user_func_array(array($this->memcached, $name), $arguments);
         }
-        catch (\Exception $e) 
+        catch (Exception $e) 
         {
             $resultado = $this->catchException($e);
         }
@@ -79,13 +85,13 @@ class MemcachedService
      * Enviar al log el error y levantar la excepcion
      * 
      * @param object $e Exception
-     * @throws \Exception
+     * @throws Exception
      */
     protected function catchException($e)
     {
         $this->log->err('DSN: '.$this->dsn. '| CLASS: '.get_class($e). '| CODE: '.$e->getCode() . '| MSG: '. $e->getMessage());
         
-        throw new \Exception($e->getMessage(), $e, $e->getCode());
+        throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
     }
 }
 
