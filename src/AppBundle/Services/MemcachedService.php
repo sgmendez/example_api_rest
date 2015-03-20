@@ -28,10 +28,10 @@ class MemcachedService
         $this->dsn = var_export($addServers, true);
         
         try
-        {            
+        {
             if(!class_exists('Memcached'))
             {
-                throw new NotFoundHttpException('No existe la clase: Memcached', 900);
+                throw new NotFoundHttpException('No existe la clase: Memcached', null, 900);
             }
             
             $this->memcached = new Memcached();
