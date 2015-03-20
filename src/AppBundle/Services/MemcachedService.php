@@ -12,7 +12,6 @@ class MemcachedService
 {
     private $log;
     private $memcached;
-    private $debug;
     
     /**
      * Inicializar la conexión con Memcached
@@ -22,18 +21,17 @@ class MemcachedService
      * @param bool $debug
      * @throws Exception
      */
-    public function __construct($addServers, $log, $debug) 
+    public function __construct($addServers, $log) 
     {                
         $this->log = $log;
-        $this->debug = $debug;
         
         $this->dsn = var_export($addServers, true);
         
         try
-        {
+        {            
             if(!class_exists('Memcached'))
             {
-                throw new NotFoundHttpException('No existe la clase: Memcached');
+                throw new NotFoundHttpException('No existe la clase: Memcached', 900);
             }
             
             $this->memcached = new Memcached();
@@ -46,7 +44,7 @@ class MemcachedService
             $this->memcached->addServers($addServers);
         }
         catch (Exception $e) 
-        {            
+        {
             $this->catchException($e);
         }
     }
@@ -61,9 +59,7 @@ class MemcachedService
      * @throws \Exception
      */
     public function __call($name, $arguments)
-    {
-        if(!is_array($arguments)) return false;
-        
+    {        
         try
         {
             if(!method_exists($this->memcached, $name))
@@ -87,12 +83,16 @@ class MemcachedService
      * @param object $e Exception
      * @throws Exception
      */
-    protected function catchException($e)
+    protected function catchException(Exception $e)
     {
         $this->log->err('DSN: '.$this->dsn. '| CLASS: '.get_class($e). '| CODE: '.$e->getCode() . '| MSG: '. $e->getMessage());
+        
+        if($e instanceof NotFoundHttpException && $e->getCode() == 900)
+        {
+            //Evitar parar la ejecucion por no existir Memcached
+            return false;
+        }
         
         throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
     }
 }
-
-?>

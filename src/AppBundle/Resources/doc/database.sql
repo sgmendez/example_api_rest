@@ -72,3 +72,4 @@ INSERT INTO `artistas_albumes` (`artistas_id`, `albumes_id`) VALUES
 /*!40000 ALTER TABLE `artistas_albumes` ENABLE KEYS */;
 /*!40014 SET FOREIGN_KEY_CHECKS=1 */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+

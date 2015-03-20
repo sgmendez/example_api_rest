@@ -24,7 +24,6 @@ class MemcachedListener
     public function postPersist(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        //$entityManager = $args->getEntityManager();
 
         if($entity instanceof Albumes) 
         {
@@ -62,3 +61,4 @@ class MemcachedListener
         }
     }
 }
+
