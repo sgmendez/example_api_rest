@@ -33,7 +33,7 @@ class MemcachedService
         {
             if(!class_exists('Memcached'))
             {
-                throw new NotFoundHttpException('No existe la clase: Memcached');
+                throw new NotFoundHttpException('No existe la clase: Memcached', 900);
             }
             
             $this->memcached = new Memcached();
@@ -90,6 +90,12 @@ class MemcachedService
     protected function catchException($e)
     {
         $this->log->err('DSN: '.$this->dsn. '| CLASS: '.get_class($e). '| CODE: '.$e->getCode() . '| MSG: '. $e->getMessage());
+        
+        if($e instanceof NotFoundHttpException && $e->getCode() == 900)
+        {
+            //Evitar parar la ejecucion por no existir Memcached
+            return false;
+        }
         
         throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
     }
