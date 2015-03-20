@@ -17,7 +17,6 @@ class ExceptionListener
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $exception  = $event->getException();
-        //$request = $event->getRequest();
         
         switch (true) {
             case $exception instanceof NoResultException:
