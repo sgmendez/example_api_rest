@@ -6,7 +6,7 @@ services:
             
     memcached:
         class: AppBundle\Services\MemcachedService
-        arguments: [%memcached%, "@logger", %kernel.debug%]
+        arguments: [%memcached%, "@logger"]
         
     validate:
         class: AppBundle\Services\ValidateService

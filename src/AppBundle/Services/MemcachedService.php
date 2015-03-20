@@ -12,7 +12,6 @@ class MemcachedService
 {
     private $log;
     private $memcached;
-    private $debug;
     
     /**
      * Inicializar la conexión con Memcached
@@ -22,10 +21,9 @@ class MemcachedService
      * @param bool $debug
      * @throws Exception
      */
-    public function __construct($addServers, $log, $debug) 
+    public function __construct($addServers, $log) 
     {                
         $this->log = $log;
-        $this->debug = $debug;
         
         $this->dsn = var_export($addServers, true);
         
@@ -61,9 +59,7 @@ class MemcachedService
      * @throws \Exception
      */
     public function __call($name, $arguments)
-    {
-        if(!is_array($arguments)) return false;
-        
+    {        
         try
         {
             if(!method_exists($this->memcached, $name))
@@ -100,4 +96,3 @@ class MemcachedService
         throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
     }
 }
-
